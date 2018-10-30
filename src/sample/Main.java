@@ -67,13 +67,19 @@ public class Main extends Application {
         }
         numOfPoints = matrixOfPoints.length;
 
-        double[][] originalMatrix = new double[numOfPoints][3];
+        double[][] twoDMatrix = new double[numOfPoints][3];
 
         for(int row = 0;row<matrixOfPoints.length;row++){
             for(int col = 0;col<matrixOfPoints[0].length;col++){
-                originalMatrix[row][col] = matrixOfPoints[row][col];
+                twoDMatrix[row][col] = 0;
             }
         }
+
+        //This is where I need to convert the Vsx and Vsy stuff
+        convert3dto2d(matrixOfPoints, twoDMatrix);
+
+
+
 
 
         char assignment;
@@ -170,6 +176,11 @@ public class Main extends Application {
         primaryStage.setTitle("Homework 2: CSCI 4810");
         primaryStage.setScene(s);
         primaryStage.show();
+
+
+    }
+
+    private void convert3dto2d(double[][] matrixOfPoints, double[][] twoDMatrix) {
 
 
     }
