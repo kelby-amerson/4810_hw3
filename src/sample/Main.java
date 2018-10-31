@@ -80,7 +80,7 @@ public class Main extends Application {
         //This is where I need to convert the Vsx and Vsy stuff
         convert3dto2d(matrixOfPoints, twoDMatrix);
         double[][] VbyN = new double[4][4];
-        calculateV(VbyN);
+        VbyN = calculateV();
 
 
 
@@ -185,7 +185,9 @@ public class Main extends Application {
 
     }
 
-    private void calculateV(double[][] VbyN) {
+    private double[][] calculateV() {
+        double[][] VbyN = new double[4][4];
+
         //STEP 1: MAKE T1
         double[][] T1 = new double[4][4];
 
@@ -234,8 +236,10 @@ public class Main extends Application {
             for(int col = 0;col<4;col++){
                 if((row==0 && col==0)||(row==2&&col==2))
                     T3[row][col] = -.8;
-                else if((row==0 && col == 2)||(row == 2 && col == 0))
+                else if(row == 2 && col == 0)
                     T3[row][col] = -.6;
+                else if(row ==0 && col ==2)
+                    T3[row][col] = .6;
                 else if((row ==1 && col == 1)||(row ==3&&col == 3))
                     T3[row][col] = 1;
                 else
@@ -277,10 +281,10 @@ public class Main extends Application {
 
 
         //STEP 6: MULTIPLY TOGETHER AND STORE IN V
-        VbyN = multiplyMatrices(T1,T2);
-        VbyN = multiplyMatrices(VbyN,T3);
-        VbyN = multiplyMatrices(VbyN,T4);
-        VbyN = multiplyMatrices(VbyN,T5);
+        VbyN = multiplyMatrices(T1,T2, T1.length, T1[0].length, T2[0].length);
+        VbyN = multiplyMatrices(VbyN,T3,VbyN.length,VbyN[0].length,T3[0].length);
+        VbyN = multiplyMatrices(VbyN,T4, VbyN.length,VbyN[0].length,T4[0].length);
+        VbyN = multiplyMatrices(VbyN,T5, VbyN.length,VbyN[0].length,T5[0].length);
 
 
         double[][] N = new double[4][4];
@@ -296,16 +300,17 @@ public class Main extends Application {
             }
         }
 
-        VbyN = multiplyMatrices(VbyN,N);
+        VbyN = multiplyMatrices(VbyN,N, VbyN.length, VbyN[0].length, N[0].length);
+        return VbyN;
         
     }
 
     //https://www.programiz.com/java-programming/examples/multiply-matrix-function w/ a little bit of change
-    public static double[][] multiplyMatrices(double[][] firstMatrix, double[][] secondMatrix) {
-        double[][] product = new double[4][4];
-        for(int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                for (int k = 0; k < 4; k++) {
+    public static double[][] multiplyMatrices(double[][] firstMatrix, double[][] secondMatrix, int r1, int c1, int c2) {
+        double[][] product = new double[r1][c2];
+        for(int i = 0; i < r1; i++) {
+            for (int j = 0; j < c2; j++) {
+                for (int k = 0; k < c1; k++) {
                     product[i][j] += firstMatrix[i][k] * secondMatrix[k][j];
                 }
             }
