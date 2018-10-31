@@ -25,8 +25,9 @@ public class Main extends Application {
     int viewPortx = 6;
     int viewPorty = 8;
     double viewPortz = 7.5;
-    int screenSize = 30;
-    int designedView = 60;
+    int vSx = 100;//Vsx == Vsy == Vcx == Vcy
+    int screenSize = 90;
+    double designedView = 60;
 
 
 
@@ -67,16 +68,19 @@ public class Main extends Application {
         }
         numOfPoints = matrixOfPoints.length;
 
-        double[][] twoDMatrix = new double[numOfPoints][3];
+        double[][] twoDMatrix = new double[numOfPoints][2];
+
 
         for(int row = 0;row<matrixOfPoints.length;row++){
-            for(int col = 0;col<matrixOfPoints[0].length;col++){
+            for(int col = 0;col<2;col++){
                 twoDMatrix[row][col] = 0;
             }
         }
 
         //This is where I need to convert the Vsx and Vsy stuff
         convert3dto2d(matrixOfPoints, twoDMatrix);
+        double[][] VbyN = new double[4][4];
+        calculateV(VbyN);
 
 
 
@@ -142,7 +146,7 @@ public class Main extends Application {
             OutputLines(file, numOfPoints);
         }
 
-        Button btn = new Button();
+        /*Button btn = new Button();
         btn.setText("Show Original");
         btn.setOnAction((ActionEvent event) -> {
             Group root2 = new Group();
@@ -151,7 +155,7 @@ public class Main extends Application {
             final Canvas canvas2 = new Canvas(1024, 768);
 
             pixelWriter2 = canvas2.getGraphicsContext2D().getPixelWriter();
-            DisplayPixels(originalMatrix, 12, pixelWriter2);
+            //DisplayPixels(twoDMatrix, 12, pixelWriter2);
 
 
             root2.getChildren().add(canvas2);
@@ -162,6 +166,7 @@ public class Main extends Application {
 
             secondStage.show();
         });
+        */
 
 
         Group root = new Group();
@@ -169,10 +174,10 @@ public class Main extends Application {
         final Canvas canvas = new Canvas(1024, 768);
 
         pixelWriter = canvas.getGraphicsContext2D().getPixelWriter();
-        DisplayPixels(matrixOfPoints, numOfPoints, pixelWriter);
+        DisplayPixels(twoDMatrix, numOfPoints, pixelWriter);
 
         root.getChildren().add(canvas);
-        root.getChildren().add(btn);
+        //root.getChildren().add(btn);
         primaryStage.setTitle("Homework 2: CSCI 4810");
         primaryStage.setScene(s);
         primaryStage.show();
@@ -180,9 +185,166 @@ public class Main extends Application {
 
     }
 
+    private void calculateV(double[][] VbyN) {
+        //STEP 1: MAKE T1
+        double[][] T1 = new double[4][4];
+
+
+        for(int row = 0;row<4;row++){
+            for(int col = 0;col<4;col++){
+                if(row==col){
+                    T1[row][col] = 1;
+                }
+                else if(row ==3){
+                    if(col == 0)
+                        T1[row][col] = -viewPortx;
+                    else if(col == 1)
+                        T1[row][col] = -viewPorty;
+                    else if(col ==2)
+                        T1[row][col] = -viewPortz;
+                    else
+                        T1[row][col] = 0;
+                }
+                else {
+                    T1[row][col] = 0;
+                }
+            }
+        }
+
+        //STEP 2: MAKE T2
+        double[][] T2 = new double[4][4];
+
+
+        for(int row = 0;row<4;row++){
+            for(int col = 0;col<4;col++){
+                if((row==0 && col==0)||(row==3&&col==3)||(row==2 && col==1))
+                    T2[row][col] = 1;
+                else if(row==1 && col == 2)
+                    T2[row][col] = -1;
+                else
+                    T2[row][col] = 0;
+            }
+        }
+
+        //STEP 3: MAKE T3
+        double[][] T3 = new double[4][4];
+
+
+        for(int row = 0;row<4;row++){
+            for(int col = 0;col<4;col++){
+                if((row==0 && col==0)||(row==2&&col==2))
+                    T3[row][col] = -.8;
+                else if((row==0 && col == 2)||(row == 2 && col == 0))
+                    T3[row][col] = -.6;
+                else if((row ==1 && col == 1)||(row ==3&&col == 3))
+                    T3[row][col] = 1;
+                else
+                    T3[row][col] = 0;
+            }
+        }
+
+        //STEP 4: MAKE T4
+        double[][] T4 = new double[4][4];
+
+
+        for(int row = 0;row<4;row++){
+            for(int col = 0;col<4;col++){
+                if((row==1 && col==1)||(row==2&&col==2))
+                    T4[row][col] = .8;
+                else if(row==1 && col == 2)
+                    T4[row][col] = .6;
+                else if(row==2 && col ==1)
+                    T4[row][col] = -.6;
+                else if((row ==0 && col == 0)||(row ==3&&col == 3))
+                    T4[row][col] = 1;
+                else
+                    T4[row][col] = 0;
+            }
+        }
+
+        //STEP 5: MAKE T5
+        double[][] T5 = new double[4][4];
+
+
+        for(int row = 0;row<4;row++){
+            for(int col = 0;col<4;col++){
+                if(row==col)
+                    T5[row][col] = 1;
+                else
+                    T5[row][col] = 0;
+            }
+        }
+
+
+        //STEP 6: MULTIPLY TOGETHER AND STORE IN V
+        VbyN = multiplyMatrices(T1,T2);
+        VbyN = multiplyMatrices(VbyN,T3);
+        VbyN = multiplyMatrices(VbyN,T4);
+        VbyN = multiplyMatrices(VbyN,T5);
+
+
+        double[][] N = new double[4][4];
+
+        for(int row = 0;row<4;row++){
+            for(int col = 0;col<4;col++){
+                if((row==0 && col==0)||(row==1 && col ==1))
+                    N[row][col] = 4;//designed/screen
+                else if((row == 2 && col ==2)||(row==3 && col==3))
+                    N[row][col] = 1;
+                else
+                    N[row][col] = 0;
+            }
+        }
+
+        VbyN = multiplyMatrices(VbyN,N);
+        
+    }
+
+    //https://www.programiz.com/java-programming/examples/multiply-matrix-function w/ a little bit of change
+    public static double[][] multiplyMatrices(double[][] firstMatrix, double[][] secondMatrix) {
+        double[][] product = new double[4][4];
+        for(int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                for (int k = 0; k < 4; k++) {
+                    product[i][j] += firstMatrix[i][k] * secondMatrix[k][j];
+                }
+            }
+        }
+
+        return product;
+    }
+
     private void convert3dto2d(double[][] matrixOfPoints, double[][] twoDMatrix) {
+        double xS;
+        double yS;
+
+        for (int iterator = 0; iterator<matrixOfPoints.length;iterator++) {
 
 
+            double[][] pointsToConvert = new double[1][3];
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 3; col++) {
+                    pointsToConvert[0][col] = matrixOfPoints[row][col];
+                }
+            }
+            double xE = pointsToConvert[0][0];
+            double yE = pointsToConvert[0][1];
+            double zE = pointsToConvert[0][2];
+
+            xS = ((designedView*xE)/(screenSize*zE))*vSx+vSx;
+            yS = ((designedView*yE)/(screenSize*zE))*vSx+vSx;
+
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 2; col++) {
+                    if(col == 0){
+                        twoDMatrix[row][col] = xS;
+                    }
+                    if(col ==1){
+                        twoDMatrix[row][col] = yS;
+                    }
+                }
+            }
+        }
     }
 
     public double[][] BasicTranslate (int Tx, int Ty, double[][] matrix){
@@ -285,7 +447,7 @@ public class Main extends Application {
 
     public void DisplayPixels(double[][] datalines, int num, PixelWriter pw){
 
-        for(int i=0;i<datalines.length;i++){
+        /*for(int i=0;i<datalines.length;i++){
             if(i+1 != datalines.length){
                 BresenhamAlg((int)datalines[i][0], (int)datalines[i][1], (int)datalines[i+1][0], (int)datalines[i+1][1], pw);
             }
@@ -294,6 +456,21 @@ public class Main extends Application {
             }
 
         }
+        */
+
+        BresenhamAlg((int)datalines[0][0], (int)datalines[0][1], (int)datalines[5][0], (int)datalines[5][1], pw);//IH
+        BresenhamAlg((int)datalines[5][0], (int)datalines[5][1], (int)datalines[2][0], (int)datalines[2][1], pw);//HC
+        BresenhamAlg((int)datalines[2][0], (int)datalines[2][1], (int)datalines[3][0], (int)datalines[3][1], pw);//CB
+        BresenhamAlg((int)datalines[1][0], (int)datalines[1][1], (int)datalines[0][0], (int)datalines[0][1], pw);//BI
+        BresenhamAlg((int)datalines[7][0], (int)datalines[7][1], (int)datalines[6][0], (int)datalines[6][1], pw);//JG
+        BresenhamAlg((int)datalines[6][0], (int)datalines[6][1], (int)datalines[3][0], (int)datalines[3][1], pw);//GD
+        BresenhamAlg((int)datalines[3][0], (int)datalines[3][1], (int)datalines[4][0], (int)datalines[4][1], pw);//DE
+        BresenhamAlg((int)datalines[4][0], (int)datalines[4][1], (int)datalines[7][0], (int)datalines[7][1], pw);//EJ
+        BresenhamAlg((int)datalines[0][0], (int)datalines[0][1], (int)datalines[7][0], (int)datalines[7][1], pw);//IJ
+        BresenhamAlg((int)datalines[5][0], (int)datalines[5][1], (int)datalines[6][0], (int)datalines[6][1], pw);//HG
+        BresenhamAlg((int)datalines[2][0], (int)datalines[2][1], (int)datalines[3][0], (int)datalines[3][1], pw);//CD
+        BresenhamAlg((int)datalines[1][0], (int)datalines[1][1], (int)datalines[4][0], (int)datalines[4][1], pw);//BE
+
     }
 
     public static int InputLines(File datalines, int num) throws IOException {
@@ -314,12 +491,16 @@ public class Main extends Application {
         while ((string = br2.readLine())!= null){
             String firstNum = string.substring(0,string.indexOf(' '));
             int valuex = Integer.parseInt(firstNum);
-            String secondNum = string.substring(string.indexOf(' ')+1, string.indexOf(' '));
+            string = string.substring(string.indexOf(' ')+1);
+
+            String secondNum = string.substring(0, string.indexOf(' '));
             int valuey = Integer.parseInt(secondNum);
-            String thirdNum = string.substring(string.lastIndexOf(' ')+1);
+            string = string.substring(string.indexOf(' ')+1);
+
+            String thirdNum = string.substring(0, string.length());
             int valuez = Integer.parseInt(thirdNum);
 
-            System.out.println(valuex + " " + valuey);
+            //System.out.println(valuex + " " + valuey);
             matrixOfPoints[row][0] = valuex;
             matrixOfPoints[row][1] = valuey;
             matrixOfPoints[row][2] = valuez;
