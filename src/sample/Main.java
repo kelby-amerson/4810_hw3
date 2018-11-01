@@ -1,10 +1,8 @@
 package sample;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -78,10 +76,10 @@ public class Main extends Application {
         }
 
         //This is where I need to convert the Vsx and Vsy stuff
-        convert3dto2d(matrixOfPoints, twoDMatrix);
+        //convert3dto2d(matrixOfPoints, twoDMatrix);
         double[][] VbyN = new double[4][4];
         VbyN = calculateV();
-
+        twoDMatrix = performPerspective(VbyN, matrixOfPoints);
 
 
 
@@ -100,7 +98,9 @@ public class Main extends Application {
                     int Tx = scan.nextInt();
                     System.out.print("Ty: ");
                     int Ty = scan.nextInt();
-                    BasicTranslate(Tx, Ty, matrixOfPoints);
+                    System.out.print("Tz: ");
+                    int Tz = scan.nextInt();
+                    BasicTranslate(Tx, Ty, Tz, matrixOfPoints);
                     break;
 
                 case 's':
@@ -108,11 +108,15 @@ public class Main extends Application {
                     int Sx = scan.nextInt();
                     System.out.print("Sy: ");
                     int Sy = scan.nextInt();
+                    System.out.print("Sz: ");
+                    int Sz = scan.nextInt();
                     System.out.print("Cx: ");
                     int Cx = scan.nextInt();
                     System.out.print("Cy: ");
                     int Cy = scan.nextInt();
-                    Scale(Sx, Sy, Cx, Cy, matrixOfPoints);
+                    System.out.print("Cz: ");
+                    int Cz = scan.nextInt();
+                    Scale(Sx, Sy, Sz, Cx, Cy, Cz, matrixOfPoints);
                     break;
 
                 case 'r':
@@ -123,7 +127,9 @@ public class Main extends Application {
                     Cx = scan.nextInt();
                     System.out.print("Cy: ");
                     Cy = scan.nextInt();
-                    Rotate(theta, Cx, Cy, matrixOfPoints);
+                    System.out.print("Cz: ");
+                    Cz = scan.nextInt();
+                    Rotate(theta, Cx, Cy, Cz, matrixOfPoints);
                     break;
 
                 case 'q':
@@ -183,6 +189,31 @@ public class Main extends Application {
         primaryStage.show();
 
 
+    }
+
+    private double[][] performPerspective(double[][] H, double[][] matrix) {//H = V*N
+        for (int iterator = 0; iterator < matrix.length; iterator++){
+            //int iterator = 0
+            //make 1x3 matrix from matrixOfPoints
+            double[][] newMatrix = new double[1][3];
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 2; col++) {
+                    newMatrix[0][col] = matrix[row][col];
+                }
+            }
+
+            newMatrix = multiplyMatrices(newMatrix, H, newMatrix.length, newMatrix[0].length, H[0].length);
+
+            //inserting back into matrixOfPoints
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 2; col++) {
+                    matrix[row][col] = newMatrix[0][col];
+                }
+            }
+        }
+
+
+        return matrix;
     }
 
     private double[][] calculateV() {
@@ -352,7 +383,7 @@ public class Main extends Application {
         }
     }
 
-    public double[][] BasicTranslate (int Tx, int Ty, double[][] matrix){
+    public double[][] BasicTranslate(int Tx, int Ty, int Tz, double[][] matrix){
         for(int row=0;row<matrix.length;row++){
             for(int col = 0;col<matrix[0].length;col++){
                 if(col==0){
@@ -361,12 +392,15 @@ public class Main extends Application {
                 if(col==1){
                     matrix[row][col] += Ty;
                 }
+                if(col==2){
+                    matrix[row][col] += Tz;
+                }
             }
         }
         return matrix;
     }
 
-    public double[][] BasicScale(int Sx, int Sy, double[][] matrix){
+    public double[][] BasicScale(int Sx, int Sy, int Sz, double[][] matrix){
         for(int row=0;row<matrix.length;row++){
             for(int col = 0;col<matrix[0].length;col++){
                 if(col==0){
@@ -374,6 +408,9 @@ public class Main extends Application {
                 }
                 if(col==1){
                     matrix[row][col] *= Sy;
+                }
+                if(col==2){
+                    matrix[row][col] *= Sz;
                 }
             }
         }
@@ -384,6 +421,7 @@ public class Main extends Application {
         for(int row=0;row<matrix.length;row++){
             double x = matrix[row][0];
             double y = matrix[row][1];
+            double z = matrix[row][2];
             for(int col = 0;col<matrix[0].length;col++){
                 if(col==0){
                     matrix[row][col] = x*Math.cos(angle) + y*Math.sin(angle);
@@ -396,7 +434,7 @@ public class Main extends Application {
         return matrix;
     }
 
-    public void Scale(int Sx, int Sy, int Cx, int Cy, double[][] matrix) {
+    public void Scale(int Sx, int Sy, int Sz, int Cx, int Cy, int Cz, double[][] matrix) {
 
         for (int iterator = 0; iterator < matrix.length; iterator++){
             //int iterator = 0
@@ -408,9 +446,9 @@ public class Main extends Application {
                 }
             }
 
-            newMatrix = BasicTranslate(-Cx, -Cy, newMatrix);
-            newMatrix = BasicScale(Sx, Sy, newMatrix);
-            newMatrix = BasicTranslate(Cx, Cy, newMatrix);
+            newMatrix = BasicTranslate(-Cx, -Cy, -Cz, newMatrix);
+            newMatrix = BasicScale(Sx, Sy, Sz, newMatrix);
+            newMatrix = BasicTranslate(Cx, Cy, Cz, newMatrix);
 
             //inserting back into matrixOfPoints
             for (int row = iterator; row < iterator + 1; row++) {
@@ -422,7 +460,7 @@ public class Main extends Application {
 
     }
 
-    public void Rotate(double angle, int Cx, int Cy, double[][] matrix){
+    public void Rotate(double angle, int Cx, int Cy, int Cz, double[][] matrix){
 
         //making and multiplying matrices
         for (int iterator = 0; iterator < matrix.length; iterator++){
@@ -436,9 +474,9 @@ public class Main extends Application {
             }
 
 
-            newMatrix = BasicTranslate(-Cx, -Cy, newMatrix);
+            newMatrix = BasicTranslate(-Cx, -Cy, -Cz, newMatrix);
             newMatrix = BasicRotate(angle, newMatrix);
-            newMatrix = BasicTranslate(Cx, Cy, newMatrix);
+            newMatrix = BasicTranslate(Cx, Cy, Cz, newMatrix);
 
 
             //inserting back into matrixOfPoints
