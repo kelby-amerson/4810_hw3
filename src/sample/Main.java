@@ -78,9 +78,9 @@ public class Main extends Application {
         //This is where I need to convert the Vsx and Vsy stuff
         //convert3dto2d(matrixOfPoints, twoDMatrix);
         double[][] VbyN = new double[4][4];
-        VbyN = calculateV();
+        VbyN = calculateVbyN();
         twoDMatrix = performPerspective(VbyN, matrixOfPoints);
-
+        convert3dto2d(twoDMatrix, twoDMatrix);
 
 
 
@@ -191,14 +191,18 @@ public class Main extends Application {
 
     }
 
+
     private double[][] performPerspective(double[][] H, double[][] matrix) {//H = V*N
         for (int iterator = 0; iterator < matrix.length; iterator++){
             //int iterator = 0
             //make 1x3 matrix from matrixOfPoints
-            double[][] newMatrix = new double[1][3];
+            double[][] newMatrix = new double[1][4];
             for (int row = iterator; row < iterator + 1; row++) {
-                for (int col = 0; col < 2; col++) {
-                    newMatrix[0][col] = matrix[row][col];
+                for (int col = 0; col < 4; col++) {
+                    if(col == 3)
+                        newMatrix[0][col] = 1;
+                    else
+                        newMatrix[0][col] = matrix[row][col];
                 }
             }
 
@@ -206,7 +210,7 @@ public class Main extends Application {
 
             //inserting back into matrixOfPoints
             for (int row = iterator; row < iterator + 1; row++) {
-                for (int col = 0; col < 2; col++) {
+                for (int col = 0; col < 3; col++) {
                     matrix[row][col] = newMatrix[0][col];
                 }
             }
@@ -216,7 +220,7 @@ public class Main extends Application {
         return matrix;
     }
 
-    private double[][] calculateV() {
+    private double[][] calculateVbyN() {
         double[][] VbyN = new double[4][4];
 
         //STEP 1: MAKE T1
@@ -303,7 +307,9 @@ public class Main extends Application {
 
         for(int row = 0;row<4;row++){
             for(int col = 0;col<4;col++){
-                if(row==col)
+                if (row==2 && col==2)
+                    T5[row][col] = -1;
+                else if(row==col)
                     T5[row][col] = 1;
                 else
                     T5[row][col] = 0;
@@ -367,8 +373,8 @@ public class Main extends Application {
             double yE = pointsToConvert[0][1];
             double zE = pointsToConvert[0][2];
 
-            xS = ((designedView*xE)/(screenSize*zE))*vSx+vSx;
-            yS = ((designedView*yE)/(screenSize*zE))*vSx+vSx;
+            xS = (xE/zE)*vSx+vSx;
+            yS = (yE/zE)*vSx+vSx;
 
             for (int row = iterator; row < iterator + 1; row++) {
                 for (int col = 0; col < 2; col++) {
@@ -501,18 +507,18 @@ public class Main extends Application {
         }
         */
 
-        BresenhamAlg((int)datalines[0][0], (int)datalines[0][1], (int)datalines[5][0], (int)datalines[5][1], pw);//IH
-        BresenhamAlg((int)datalines[5][0], (int)datalines[5][1], (int)datalines[2][0], (int)datalines[2][1], pw);//HC
-        BresenhamAlg((int)datalines[2][0], (int)datalines[2][1], (int)datalines[3][0], (int)datalines[3][1], pw);//CB
-        BresenhamAlg((int)datalines[1][0], (int)datalines[1][1], (int)datalines[0][0], (int)datalines[0][1], pw);//BI
-        BresenhamAlg((int)datalines[7][0], (int)datalines[7][1], (int)datalines[6][0], (int)datalines[6][1], pw);//JG
-        BresenhamAlg((int)datalines[6][0], (int)datalines[6][1], (int)datalines[3][0], (int)datalines[3][1], pw);//GD
-        BresenhamAlg((int)datalines[3][0], (int)datalines[3][1], (int)datalines[4][0], (int)datalines[4][1], pw);//DE
-        BresenhamAlg((int)datalines[4][0], (int)datalines[4][1], (int)datalines[7][0], (int)datalines[7][1], pw);//EJ
-        BresenhamAlg((int)datalines[0][0], (int)datalines[0][1], (int)datalines[7][0], (int)datalines[7][1], pw);//IJ
-        BresenhamAlg((int)datalines[5][0], (int)datalines[5][1], (int)datalines[6][0], (int)datalines[6][1], pw);//HG
+        BresenhamAlg((int)datalines[0][0], (int)datalines[0][1], (int)datalines[1][0], (int)datalines[1][1], pw);//AB
+        BresenhamAlg((int)datalines[1][0], (int)datalines[1][1], (int)datalines[2][0], (int)datalines[2][1], pw);//BC
         BresenhamAlg((int)datalines[2][0], (int)datalines[2][1], (int)datalines[3][0], (int)datalines[3][1], pw);//CD
-        BresenhamAlg((int)datalines[1][0], (int)datalines[1][1], (int)datalines[4][0], (int)datalines[4][1], pw);//BE
+        BresenhamAlg((int)datalines[3][0], (int)datalines[3][1], (int)datalines[0][0], (int)datalines[0][1], pw);//DA
+        BresenhamAlg((int)datalines[4][0], (int)datalines[4][1], (int)datalines[5][0], (int)datalines[5][1], pw);//EF
+        BresenhamAlg((int)datalines[5][0], (int)datalines[5][1], (int)datalines[6][0], (int)datalines[6][1], pw);//FG
+        BresenhamAlg((int)datalines[6][0], (int)datalines[6][1], (int)datalines[7][0], (int)datalines[7][1], pw);//GH
+        BresenhamAlg((int)datalines[7][0], (int)datalines[7][1], (int)datalines[4][0], (int)datalines[4][1], pw);//HE
+        BresenhamAlg((int)datalines[0][0], (int)datalines[0][1], (int)datalines[4][0], (int)datalines[4][1], pw);//AE
+        BresenhamAlg((int)datalines[1][0], (int)datalines[1][1], (int)datalines[5][0], (int)datalines[5][1], pw);//BF
+        BresenhamAlg((int)datalines[2][0], (int)datalines[2][1], (int)datalines[6][0], (int)datalines[6][1], pw);//CG
+        BresenhamAlg((int)datalines[3][0], (int)datalines[3][1], (int)datalines[7][0], (int)datalines[7][1], pw);//DH
 
     }
 
