@@ -27,6 +27,8 @@ public class Main extends Application {
     int screenSize = 90;
     double designedView = 60;
 
+    boolean square = false;
+    boolean pyramid = false;
 
 
     @Override
@@ -666,6 +668,7 @@ public class Main extends Application {
 
     public static void main(String[] args) throws FileNotFoundException {
         if(args.length >0) {
+
 
             File file = new File(System.getProperty("user.dir")+"/src/sample/" + args[0]);
             try {
