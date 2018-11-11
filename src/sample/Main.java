@@ -137,18 +137,53 @@ public class Main extends Application {
                     break;
 
                 case 'r':
-                    System.out.print("Theta: ");
-                    double theta = scan.nextInt();
-                    theta = Math.toRadians(theta);
-                    System.out.print("Cx: ");
-                    Cx = scan.nextInt();
-                    System.out.print("Cy: ");
-                    Cy = scan.nextInt();
-                    System.out.print("Cz: ");
-                    Cz = scan.nextInt();
-                    Rotate(theta, Cx, Cy, Cz, matrixOfPoints);
-                    twoDMatrix = performPerspective(VbyN, matrixOfPoints);
-                    convert3dto2d(twoDMatrix, twoDMatrix);
+                    System.out.println("What axis do you want to rotate by?: x, y, z");
+                    char axis = scan.next().charAt(0);
+                    double theta;
+                    switch(axis){
+                        case 'x':
+                            System.out.print("Theta: ");
+                            theta = scan.nextInt();
+                            theta = Math.toRadians(theta);
+                            System.out.print("Cx: ");
+                            Cx = scan.nextInt();
+                            System.out.print("Cy: ");
+                            Cy = scan.nextInt();
+                            System.out.print("Cz: ");
+                            Cz = scan.nextInt();
+                            RotateX(theta, Cx, Cy, Cz, matrixOfPoints);
+                            twoDMatrix = performPerspective(VbyN, matrixOfPoints);
+                            convert3dto2d(twoDMatrix, twoDMatrix);
+                            break;
+                        case 'y':
+                            System.out.print("Theta: ");
+                            theta = scan.nextInt();
+                            theta = Math.toRadians(theta);
+                            System.out.print("Cx: ");
+                            Cx = scan.nextInt();
+                            System.out.print("Cy: ");
+                            Cy = scan.nextInt();
+                            System.out.print("Cz: ");
+                            Cz = scan.nextInt();
+                            RotateY(theta, Cx, Cy, Cz, matrixOfPoints);
+                            twoDMatrix = performPerspective(VbyN, matrixOfPoints);
+                            convert3dto2d(twoDMatrix, twoDMatrix);
+                            break;
+                        case 'z':
+                            System.out.print("Theta: ");
+                            theta = scan.nextInt();
+                            theta = Math.toRadians(theta);
+                            System.out.print("Cx: ");
+                            Cx = scan.nextInt();
+                            System.out.print("Cy: ");
+                            Cy = scan.nextInt();
+                            System.out.print("Cz: ");
+                            Cz = scan.nextInt();
+                            RotateZ(theta, Cx, Cy, Cz, matrixOfPoints);
+                            twoDMatrix = performPerspective(VbyN, matrixOfPoints);
+                            convert3dto2d(twoDMatrix, twoDMatrix);
+                            break;
+                    }
                     break;
 
                 case 'q':
@@ -516,6 +551,132 @@ public class Main extends Application {
         return matrix;
     }
 
+    public void RotateX(double angle, int Cx, int Cy, int Cz, double[][] matrix){
+        //making and multiplying matrices
+        for (int iterator = 0; iterator < matrix.length; iterator++){
+            //int iterator = 0
+            //make 1x3 matrix from matrixOfPoints
+            double[][] newMatrix = new double[1][4];
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 4; col++) {
+                    newMatrix[0][col] = matrix[row][col];//1x4 of matrix to copy, transform, and copy back into matrix
+                }
+            }
+
+
+            newMatrix = BasicTranslate(-Cx, -Cy, -Cz, newMatrix);
+
+            for(int row=0;row<newMatrix.length;row++){
+                double x = newMatrix[row][0];
+                double y = newMatrix[row][1];
+                double z = newMatrix[row][2];
+                for(int col = 0;col<matrix[0].length;col++){
+                    if(col==1){
+                        newMatrix[row][col] = y*Math.cos(angle) - z*Math.sin(angle);
+                    }
+                    if(col==2){
+                        newMatrix[row][col] = y*Math.sin(angle) + z*Math.cos(angle);
+                    }
+                }
+            }
+
+
+            newMatrix = BasicTranslate(Cx, Cy, Cz, newMatrix);
+
+
+            //inserting back into matrixOfPoints
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 4; col++) {
+                    matrix[row][col] = newMatrix[0][col];
+                }
+            }
+        }
+    }
+
+    public void RotateY(double angle, int Cx, int Cy, int Cz, double[][] matrix){
+        //making and multiplying matrices
+        for (int iterator = 0; iterator < matrix.length; iterator++){
+            //int iterator = 0
+            //make 1x3 matrix from matrixOfPoints
+            double[][] newMatrix = new double[1][4];
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 4; col++) {
+                    newMatrix[0][col] = matrix[row][col];//1x4 of matrix to copy, transform, and copy back into matrix
+                }
+            }
+
+
+            newMatrix = BasicTranslate(-Cx, -Cy, -Cz, newMatrix);
+
+            for(int row=0;row<newMatrix.length;row++){
+                double x = newMatrix[row][0];
+                double y = newMatrix[row][1];
+                double z = newMatrix[row][2];
+                for(int col = 0;col<matrix[0].length;col++){
+                    if(col==0){
+                        newMatrix[row][col] = x*Math.cos(angle) + z*Math.sin(angle);
+                    }
+                    if(col==1){
+                        newMatrix[row][col] = -x*Math.sin(angle) + z*Math.cos(angle);
+                    }
+                }
+            }
+
+
+            newMatrix = BasicTranslate(Cx, Cy, Cz, newMatrix);
+
+
+            //inserting back into matrixOfPoints
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 4; col++) {
+                    matrix[row][col] = newMatrix[0][col];
+                }
+            }
+        }
+    }
+
+    public void RotateZ(double angle, int Cx, int Cy, int Cz, double[][] matrix){
+        //making and multiplying matrices
+        for (int iterator = 0; iterator < matrix.length; iterator++){
+            //int iterator = 0
+            //make 1x3 matrix from matrixOfPoints
+            double[][] newMatrix = new double[1][4];
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 4; col++) {
+                    newMatrix[0][col] = matrix[row][col];//1x4 of matrix to copy, transform, and copy back into matrix
+                }
+            }
+
+
+            newMatrix = BasicTranslate(-Cx, -Cy, -Cz, newMatrix);
+
+            for(int row=0;row<newMatrix.length;row++){
+                double x = newMatrix[row][0];
+                double y = newMatrix[row][1];
+                double z = newMatrix[row][2];
+                for(int col = 0;col<matrix[0].length;col++){
+                    if(col==0){
+                        newMatrix[row][col] = x*Math.cos(angle) - y*Math.sin(angle);
+                    }
+                    if(col==1){
+                        newMatrix[row][col] = x*Math.sin(angle) + y*Math.cos(angle);
+                    }
+                }
+            }
+
+
+            newMatrix = BasicTranslate(Cx, Cy, Cz, newMatrix);
+
+
+            //inserting back into matrixOfPoints
+            for (int row = iterator; row < iterator + 1; row++) {
+                for (int col = 0; col < 4; col++) {
+                    matrix[row][col] = newMatrix[0][col];
+                }
+            }
+        }
+    }
+
     public void Scale(int Sx, int Sy, int Sz, int Cx, int Cy, int Cz, double[][] matrix) {
 
         for (int iterator = 0; iterator < matrix.length; iterator++){
@@ -551,7 +712,7 @@ public class Main extends Application {
             double[][] newMatrix = new double[1][4];
             for (int row = iterator; row < iterator + 1; row++) {
                 for (int col = 0; col < 4; col++) {
-                    newMatrix[0][col] = matrix[row][col];
+                    newMatrix[0][col] = matrix[row][col];//1x4 of matrix to copy, transform, and copy back into matrix
                 }
             }
 
