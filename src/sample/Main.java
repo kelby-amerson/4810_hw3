@@ -24,7 +24,7 @@ public class Main extends Application {
     int viewPortx = 6;
     int viewPorty = 8;
     double viewPortz = 7.5;
-    int vSx = 100;//Vsx == Vsy == Vcx == Vcy
+    int vSx = 50;//Vsx == Vsy == Vcx == Vcy
     int screenSize = 15;
     double designedView = 60;
 
@@ -771,7 +771,7 @@ public class Main extends Application {
             if(argName.equals("givenSquare.txt")){
                 square = true;
             }
-            else if(argName.equals("squarePryamid.txt")){
+            else if(argName.equals("squarePyramid.txt")){
                 squarePyramid = true;
             }
             else if(argName.equals("tetrahedron.txt")){
